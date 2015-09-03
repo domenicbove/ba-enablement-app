@@ -1,5 +1,7 @@
 package com.redhat;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
 import org.jbpm.services.api.model.DeploymentUnit;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.builder.helper.FluentKieModuleDeploymentHelper;
@@ -24,11 +27,14 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 @ActiveProfiles("test")
 public class BpmTest extends AbstractJUnit4SpringContextTests {
 
+	private StatelessDecisionService service = BrmsHelper.newStatelessDecisionServiceBuilder().auditLogName("audit").build();
+
+	
 	protected static final String GROUP_ID = "com.redhat";
 	protected static final String ARTIFACT_ID = "knowledge";
 	protected static final String VERSION = "1.1-SNAPSHOT";
 	protected static final DeploymentUnit DEPLOYMENT_UNIT = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-	protected static final String PROCESS_ID = "defaultPackage.Process"; // TODO this might be different for you
+	protected static final String PROCESS_ID = "defaultPackage.Process2"; // TODO this might be different for you
 
 	@Autowired
 	protected ProcessService processService;
@@ -45,10 +51,10 @@ public class BpmTest extends AbstractJUnit4SpringContextTests {
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("StringVar", new String("test"));
-
+		
 		processService.startProcess(DEPLOYMENT_UNIT.getIdentifier(), PROCESS_ID, map);
 	}
-
+	
 	protected static PoolingDataSource pds;
 
 	@BeforeClass
