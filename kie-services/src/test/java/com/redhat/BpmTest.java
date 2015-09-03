@@ -34,7 +34,7 @@ public class BpmTest extends AbstractJUnit4SpringContextTests {
 	protected static final String ARTIFACT_ID = "knowledge";
 	protected static final String VERSION = "1.1-SNAPSHOT";
 	protected static final DeploymentUnit DEPLOYMENT_UNIT = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-	protected static final String PROCESS_ID = "defaultPackage.Process"; // TODO this might be different for you
+	protected static final String PROCESS_ID = "defaultPackage.Process2"; // TODO this might be different for you
 
 	@Autowired
 	protected ProcessService processService;
@@ -45,7 +45,7 @@ public class BpmTest extends AbstractJUnit4SpringContextTests {
 	@Autowired
 	protected UserTaskService userTaskService;
 
-	//@Test
+	@Test
 	public void test() throws InterruptedException {
 		deploymentService.deploy(DEPLOYMENT_UNIT);
 
@@ -53,24 +53,6 @@ public class BpmTest extends AbstractJUnit4SpringContextTests {
 		map.put("StringVar", new String("test"));
 		
 		processService.startProcess(DEPLOYMENT_UNIT.getIdentifier(), PROCESS_ID, map);
-	}
-
-	
-	@Test
-	public void helloWorldTest() {
-		// given
-		Collection<Object> facts = new ArrayList<Object>();
-		Business business = new Business();
-		business.setName("test");
-		facts.add(business);
-
-		// when
-		RuleResponse response = service.runRules(facts, "defaultPackage.Process", RuleResponse.class);
-
-		// then
-		Assert.assertNotNull(response);
-		Assert.assertNotNull(response.getBusiness());
-		Assert.assertEquals("test", response.getBusiness().getName());
 	}
 	
 	protected static PoolingDataSource pds;
