@@ -45,6 +45,11 @@ public class BpmTest extends AbstractJUnit4SpringContextTests {
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("StringVar", new String("test"));
+		
+		Business business = new Business();
+		business.setName("test");
+		business.setStateCode("KS");
+		map.put("myBusiness", business);
 
 		processService.startProcess(DEPLOYMENT_UNIT.getIdentifier(), PROCESS_ID, map);
 	}
@@ -57,6 +62,7 @@ public class BpmTest extends AbstractJUnit4SpringContextTests {
 		
 		FluentKieModuleDeploymentHelper helper1 = KieModuleDeploymentHelper.newFluentInstance();
 		TestUtils.createDefaultKieBase(helper1);
-		helper1.setGroupId(GROUP_ID).setArtifactId(ARTIFACT_ID).setVersion(VERSION).addResourceFilePath("com/redhat/simple/Process.bpmn2").createKieJarAndDeployToMaven();
+		helper1.setGroupId(GROUP_ID).setArtifactId(ARTIFACT_ID).setVersion(VERSION).addResourceFilePath("com/redhat/simple/Process.bpmn2", "com/redhat/simple/ProcessRules.drl").createKieJarAndDeployToMaven();
+	
 	}
 }
