@@ -11,59 +11,57 @@ public class DroolsTest {
 	private StatelessDecisionService service = BrmsHelper.newStatelessDecisionServiceBuilder().auditLogName("audit").build();
 
 	@Test
-	public void helloWorldTest() {
+	public void filterKansasTest() {
 		// given
 		Collection<Object> facts = new ArrayList<Object>();
 		Business business = new Business();
-		business.setName("test");
-		String string = new String();
+		business.setStateCode("KS");
 		facts.add(business);
-
 		// when
 		RuleResponse response = service.runRules(facts, "defaultPackage.Process", RuleResponse.class);
-
 		// then
 		Assert.assertNotNull(response);
 		Assert.assertNotNull(response.getBusiness());
-		Assert.assertEquals("test", response.getBusiness().getName());
+		Assert.assertEquals(response.getReasons().getResponseCode(), "filtered");
+	}
+	
+	@Test
+	public void validationFailTest() {
+		// given
+		Collection<Object> facts = new ArrayList<Object>();
+		Business business = new Business();
+		business.setStateCode("CA");
+		facts.add(business);
+		// when
+		RuleResponse response = service.runRules(facts, "defaultPackage.Process", RuleResponse.class);
+		// then
+		Assert.assertNotNull(response);
+		Assert.assertNotNull(response.getBusiness());
+		Assert.assertEquals(response.getReasons().getResponseCode(), "validation error");
 	}
 	
 	
-	public void shouldFilterOutAllRequestsFromKansas(){
-		// scenario: business from Kansas are handled by another system - filter them out
-		// given a business from Kansas
-		// when I apply the filtering rules
-		// then the business should be filtered
-		// and the reason message should be "business filtered from Kansas"
-	}
-	
-	
-	public void shouldProcessAllBusinessesNotFromKansas(){
-		// scenario: we are responsible for all businesses not from Kansas
-		// given a business from New York
-		// when I apply the filtering rules
-		// then the business should be not be filtered
-		// and the validation rules should be applied to the business
-	}
-	
-	public void shouldCreateValidationErrorsForAnyFieldThatAreEmptyOrNull(){
-		// scenario: all fields must have values. 
-		// given a business 
-		// and the business' zipcode is empty
-		// and the business' address line 1 is null
-		// when I apply the validation rules
-		// then the business should be return a validation error
-		// and a message should say the zipcode is empty
-		// and a message should say the address is null
-	}
-	
-	public void shouldEnrichTheTaxIdWithZipCode(){
+	@Test
+	public void validationPassTest(){
 		// scenario: we need to enrich the taxId with the zipcode for system XYZ
 		// given a business 
+		Collection<Object> facts = new ArrayList<Object>();
+		Business business = new Business();
+		business.setName("biz1");
+		business.setAddressLine1("addr1");
+		business.setAddressLine2("addr2");
+		business.setPhoneNumber("831");
+		business.setStateCode("CA");
+		business.setCity("SC");
 		// and the business' zipcode is 10002
+		business.setZipCode("10002");
 		// and the business' taxId is 98765
+		business.setFederalTaxId("98765");
+		facts.add(business);
 		// when I apply the enrichment rules
+		RuleResponse response = service.runRules(facts, "defaultPackage.Process", RuleResponse.class);
 		// then the business' taxId should be enriched to 98765-10002
+		Assert.assertNotNull(response);
+		Assert.assertEquals("98765-10002", response.getBusiness().getFederalTaxId());
 	}
-	
 }

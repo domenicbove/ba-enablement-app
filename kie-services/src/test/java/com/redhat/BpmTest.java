@@ -1,5 +1,7 @@
 package com.redhat;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
 import org.jbpm.services.api.model.DeploymentUnit;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.builder.helper.FluentKieModuleDeploymentHelper;
@@ -24,6 +27,9 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 @ActiveProfiles("test")
 public class BpmTest extends AbstractJUnit4SpringContextTests {
 
+	private StatelessDecisionService service = BrmsHelper.newStatelessDecisionServiceBuilder().auditLogName("audit").build();
+
+	
 	protected static final String GROUP_ID = "com.redhat";
 	protected static final String ARTIFACT_ID = "knowledge";
 	protected static final String VERSION = "1.1-SNAPSHOT";
@@ -39,16 +45,34 @@ public class BpmTest extends AbstractJUnit4SpringContextTests {
 	@Autowired
 	protected UserTaskService userTaskService;
 
-	@Test
+	//@Test
 	public void test() throws InterruptedException {
 		deploymentService.deploy(DEPLOYMENT_UNIT);
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("StringVar", new String("test"));
-
+		
 		processService.startProcess(DEPLOYMENT_UNIT.getIdentifier(), PROCESS_ID, map);
 	}
 
+	
+	@Test
+	public void helloWorldTest() {
+		// given
+		Collection<Object> facts = new ArrayList<Object>();
+		Business business = new Business();
+		business.setName("test");
+		facts.add(business);
+
+		// when
+		RuleResponse response = service.runRules(facts, "defaultPackage.Process", RuleResponse.class);
+
+		// then
+		Assert.assertNotNull(response);
+		Assert.assertNotNull(response.getBusiness());
+		Assert.assertEquals("test", response.getBusiness().getName());
+	}
+	
 	protected static PoolingDataSource pds;
 
 	@BeforeClass
